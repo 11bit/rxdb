@@ -74,6 +74,19 @@ config.parallel('hooks.test.js', () => {
                     assert.strictEqual(countp, 1);
                     c.database.destroy();
                 });
+                it('should save _meta', async () => {
+                    const c = await humansCollection.createPrimary(0);
+                    const human = schemaObjects.simpleHuman();
+
+                    c.preInsert(function (d, instance) {
+                        d._meta.test = 'foobar';
+                    }, false);
+
+                    await c.insert(human);
+                    const doc = await c.findOne(human.passportId).exec(true);
+                    assert.strictEqual(doc._meta.test, 'foobar');
+                    c.database.destroy();
+                });
                 it('should save a modified document', async () => {
                     const c = await humansCollection.createPrimary(0);
                     const human = schemaObjects.simpleHuman();
